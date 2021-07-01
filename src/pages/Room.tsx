@@ -2,9 +2,11 @@ import { FormEvent, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { useAuth } from "../hooks/useAuth";
+import { useRoom } from "../hooks/useRoom";
 import { database } from "../services/firebase";
 import Button from "../components/Button";
 import RoomCode from "../components/RoomCode";
+import Question from "../components/Question";
 import logoImg from "../assets/images/logo.svg";
 
 import "../styles/room.scss";
@@ -17,6 +19,7 @@ const Room = () => {
   const params = useParams<RoomParams>();
   const roomId = params.id;
   const { user } = useAuth();
+  const { questions, title } = useRoom(roomId);
 
   const [newQuestion, setNewQuestion] = useState("");
 
@@ -57,8 +60,8 @@ const Room = () => {
 
       <main>
         <div className="room-title">
-          <h1>Sala React</h1>
-          <span>4 perguntas</span>
+          <h1>Sala {title}</h1>
+          {questions.length > 0 && <span>{questions.length} pergunta(s)</span>}
         </div>
 
         <form onSubmit={handleSendQuestion}>
@@ -83,6 +86,16 @@ const Room = () => {
             </Button>
           </div>
         </form>
+
+        <div className="question-list">
+          {questions.map((question) => (
+            <Question
+              key={question.id}
+              content={question.content}
+              author={question.author}
+            />
+          ))}
+        </div>
       </main>
     </div>
   );
