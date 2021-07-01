@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
-import { useAuth } from "../hooks/useAuth";
 import { useRoom } from "../hooks/useRoom";
 import { database } from "../services/firebase";
 import Button from "../components/Button";
@@ -17,11 +15,15 @@ type RoomParams = {
 };
 
 const AdminRoom = () => {
-  //const history = useHistory();
+  const history = useHistory();
   const params = useParams<RoomParams>();
   const roomId = params.id;
-  const { user } = useAuth();
   const { questions, title } = useRoom(roomId);
+
+  async function handleEndRoom() {
+    await database.ref(`rooms/${roomId}`).update({ endedAt: new Date() });
+    history.push("/");
+  }
 
   async function handleDeleteQuestion(questionId: string) {
     if (window.confirm("Tem certeza que deseja excluir esta pergunta?")) {
@@ -36,7 +38,9 @@ const AdminRoom = () => {
           <img src={logoImg} alt="Letmeask" />
           <div>
             <RoomCode code={roomId} />
-            <Button isOutlined>Encerrar sala</Button>
+            <Button isOutlined onClick={handleEndRoom}>
+              Encerrar sala
+            </Button>
           </div>
         </div>
       </header>
